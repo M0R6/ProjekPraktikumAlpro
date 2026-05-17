@@ -1,0 +1,12 @@
+alex:password123
+bob:qwerty!234
+carol:helloWorld
+dave:letmein
+eve:changeme
+mike:blueSky42
+sara:s3cur3p@ss
+linda:passw0rd
+tom:admin2026
+nancy:coffeeCup
+igor:rocket789
+zoe:sunshine

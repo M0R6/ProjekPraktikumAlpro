@@ -55,20 +55,29 @@ void searchFilm(string keyword, char tipe){
    system("cls");
    cout << "Hasil Pencarian untuk '" << keyword << "':\n";
    cout << "ID\tJudul\t\tGenre\t\tHarga\n";
+   bool ditemukan = false;
    if(tipe == 'j'){
       for(int i = 0; i < daftarFilm.size(); i++){
          string lowerJudul = toLower(daftarFilm[i].judul);
          if(lowerJudul.find(keyword) != string::npos){
             cout << daftarFilm[i].id << "\t" << daftarFilm[i].judul << "\t" << daftarFilm[i].genre << "\t" << daftarFilm[i].harga << endl;
+            ditemukan = true;
          }
-      } 
+      }
+      if(!ditemukan){
+         cout << "Film dengan judul '" << keyword << "' tidak ditemukan." << endl;
+      }
    } else if(tipe == 'g'){
       for(int i = 0; i < daftarFilm.size(); i++){
          string lowerGenre = toLower(daftarFilm[i].genre);
          if(lowerGenre.find(keyword) != string::npos){
             cout << daftarFilm[i].id << "\t" << daftarFilm[i].judul << "\t" << daftarFilm[i].genre << "\t" << daftarFilm[i].harga << endl;
+            ditemukan = true;
          }
       } 
+      if(!ditemukan){
+         cout << "Film dengan genre '" << keyword << "' tidak ditemukan." << endl;
+      }
    } 
    system("pause"); 
 }

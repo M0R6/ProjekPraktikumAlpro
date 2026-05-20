@@ -15,20 +15,6 @@ struct Pengguna{
    string password;
 };
 
-// Ini nanti dianuin, diambil dari file txt.. sementara hardcode
-vector<Film> daftarFilm = {
-   {1, "Inception", "Sci-Fi", 45000},
-   {2, "The Dark Knight", "Action", 50000},
-   {3, "Interstellar", "Sci-Fi", 45000},
-   {4, "Conjuring", "Horror", 40000},
-   {5, "La La Land", "Romance", 35000},
-   {6, "Spirited Away", "Animation", 40000},
-   {7, "Parasite", "Thriller", 45000},
-   {8, "Avengers: Endgame", "Action", 55000},
-   {9, "Coco", "Animation", 35000},
-   {10, "The Hangover", "Comedy", 35000}
-};
-
 struct Pesanan{
    string namaPelanggan;
    string judulFilm;
@@ -46,21 +32,38 @@ void tampilDaftarFilm(){
    system("cls");
    cout << "Daftar Film Tersedia:\n";
    cout << "ID\tJudul\t\tGenre\t\tHarga\n";
-   for(int i = 0; i < daftarFilm.size(); i++){
-      cout << daftarFilm[i].id << "\t" << daftarFilm[i].judul << "\t" << daftarFilm[i].genre << "\t" << daftarFilm[i].harga << endl;
+   ifstream fileFilm("films.txt");
+   if(fileFilm.is_open()){
+      string id, judul, genre, harga;
+      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
+         Film film;
+         film.id = stoi(id);
+         film.judul = judul;
+         film.genre = genre;
+         film.harga = stoi(harga);
+         cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
+      }
+      
    }
 }
 
 void searchFilm(string keyword, char tipe){
    system("cls");
+   ifstream fileFilm("films.txt");
+   string id, judul, genre, harga;
    cout << "Hasil Pencarian untuk '" << keyword << "':\n";
    cout << "ID\tJudul\t\tGenre\t\tHarga\n";
    bool ditemukan = false;
    if(tipe == 'j'){
-      for(int i = 0; i < daftarFilm.size(); i++){
-         string lowerJudul = toLower(daftarFilm[i].judul);
-         if(lowerJudul.find(keyword) != string::npos){
-            cout << daftarFilm[i].id << "\t" << daftarFilm[i].judul << "\t" << daftarFilm[i].genre << "\t" << daftarFilm[i].harga << endl;
+      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
+         Film film;
+         film.id = stoi(id);
+         film.judul = judul;
+         film.genre = genre;
+         film.harga = stoi(harga);
+         string lowerJudul = toLower(film.judul);
+         if(lowerJudul.find(toLower(keyword)) != string::npos){
+            cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
             ditemukan = true;
          }
       }
@@ -68,13 +71,18 @@ void searchFilm(string keyword, char tipe){
          cout << "Film dengan judul '" << keyword << "' tidak ditemukan." << endl;
       }
    } else if(tipe == 'g'){
-      for(int i = 0; i < daftarFilm.size(); i++){
-         string lowerGenre = toLower(daftarFilm[i].genre);
-         if(lowerGenre.find(keyword) != string::npos){
-            cout << daftarFilm[i].id << "\t" << daftarFilm[i].judul << "\t" << daftarFilm[i].genre << "\t" << daftarFilm[i].harga << endl;
+      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
+         Film film;
+         film.id = stoi(id);
+         film.judul = judul;
+         film.genre = genre;
+         film.harga = stoi(harga);
+         string lowerGenre = toLower(film.genre);
+         if(lowerGenre.find(toLower(keyword)) != string::npos){
+            cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
             ditemukan = true;
          }
-      } 
+      }
       if(!ditemukan){
          cout << "Film dengan genre '" << keyword << "' tidak ditemukan." << endl;
       }
@@ -121,8 +129,27 @@ void menuCariFilm(){
    } while (pilih != 3);
 }
 
-bool menuAdmin() {
+void tambahFilm(){
+   ofstream fileFilm("films.txt", ios::app);
+   Film newFilm;
+   cout << "Masukkan ID Film: ";
+   cin >> newFilm.id;
+   cout << "Masukkan Judul Film: ";
+   cin.ignore();
+   getline(cin, newFilm.judul);
+   cout << "Masukkan Genre Film: ";
+   getline(cin, newFilm.genre);
+   cout << "Masukkan Harga Tiket: ";
+   cin >> newFilm.harga;
+   fileFilm << newFilm.id << ":" << newFilm.judul << ":" << newFilm.genre << ":" << newFilm.harga << "\n";
+   fileFilm.close();
+   cout << "Film berhasil ditambahkan!" << endl;
+}
+
+void menuAdmin() {
    system("cls"); 
+   int pilih;
+   char ulang;
    Pengguna inputAdmin; 
    cout << "\n=== LOGIN ADMIN ===\n";
    cout << "Username: "; cin >> inputAdmin.username;
@@ -141,7 +168,41 @@ bool menuAdmin() {
        }
    }
    fileAdmin.close();
-   return statusLogin;
+   if (statusLogin){
+      do{
+         cout << "===============================\n";
+         cout << "         MENU ADMIN            \n";
+         cout << "===============================\n";
+         cout << "1. Tambah Film\n";
+         cout << "2. Edit Film\n";
+         cout << "3. Hapus Film\n";
+         cout << "4. Lihat Laporan Transaksi\n";
+         cout << "5. Logout\n";
+         cout << "Pilih menu (1-5): ";
+         cin >> pilih;
+         switch (pilih){
+            case 1:
+               tambahFilm();
+               cout << "Kembali ke menu admin? (y/n): ";
+               cin >> ulang;
+               break;
+            case 2:
+               break;
+            case 3:
+               break;
+            case 4:
+               break;
+            case 5:
+               cout << "Logout berhasil!" << endl;
+               break;
+            default:
+               cout << "Menu yang anda pilih tidak tersedia!" << endl;
+               break;
+         }
+      }while(pilih != 5 && (ulang == 'y' || ulang == 'Y'));
+   }else{
+       cout << "Login gagal! Pastikan username dan password benar." << endl;
+   }
 }
 
 void registerCustomer() {
@@ -151,9 +212,9 @@ void registerCustomer() {
    cout << "Username: "; cin >> newCustomer.username;
    cout << "Password: "; cin >> newCustomer.password;
 
-   ofstream buatFile("customers.txt", ios::app);
-   buatFile << newCustomer.username << ":" << newCustomer.password << "\n";
-   buatFile.close();
+   ofstream File("customers.txt", ios::app);
+   File << newCustomer.username << ":" << newCustomer.password << "\n";
+   File.close();
 }
 
 void menuPengguna(){  

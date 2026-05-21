@@ -1,7 +1,8 @@
 #include <iostream>
-#include <vector>
 #include <fstream>
 using namespace std;
+
+void tampilDaftarFilm(), menuCariFilm(), tambahFilm(), menuAdmin(), registerCustomer(), menuPengguna(), ulangi(bool &ulang);
 
 struct Film{
    int id;
@@ -146,6 +147,133 @@ void tambahFilm(){
    cout << "Film berhasil ditambahkan!" << endl;
 }
 
+void editJudul(int cari){
+   string id, judul, genre, harga, ganti;
+   cout << "Masukkan judul baru: ";
+   cin.ignore();
+   getline(cin, ganti);
+
+   ifstream file("films.txt");
+   ofstream temp("temp.txt");
+
+   if (!file || !temp) {
+       cout << "Gagal membuka file!" << endl;
+       return;
+   }
+   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
+      if(stoi(id) == cari){
+         temp << id << ":" << ganti << ":" << genre << ":" << harga << "\n";
+      }else{
+         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+      }
+   }
+   file.close();
+   temp.close();
+   remove("films.txt");
+   rename("temp.txt", "films.txt");
+   cout << "Judul film berhasil diubah!" << endl;
+}
+
+void editGenre(int cari){
+   string id, judul, genre, harga, ganti;
+   cout << "Masukkan genre baru: ";
+   cin.ignore();
+   getline(cin, ganti);
+
+   ifstream file("films.txt");
+   ofstream temp("temp.txt");
+
+   if (!file || !temp) {
+       cout << "Gagal membuka file!" << endl;
+       return;
+   }
+   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
+      if(stoi(id) == cari){
+         temp << id << ":" << judul << ":" << ganti << ":" << harga << "\n";
+      }else{
+         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+      }
+   }
+   file.close();
+   temp.close();
+   remove("films.txt");
+   rename("temp.txt", "films.txt");
+   cout << "Genre film berhasil diubah!" << endl;
+}
+
+void editHarga(int cari){
+   string id, judul, genre, harga, ganti;
+   cout << "Masukkan harga baru: ";
+   cin >> ganti;
+
+   ifstream file("films.txt");
+   ofstream temp("temp.txt");
+
+   if (!file || !temp) {
+       cout << "Gagal membuka file!" << endl;
+       return;
+   }
+   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
+      if(stoi(id) == cari){
+         temp << id << ":" << judul << ":" << genre << ":" << ganti << "\n";
+      }else{
+         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+      }
+   }
+   file.close();
+   temp.close();
+   remove("films.txt");
+   rename("temp.txt", "films.txt");
+   cout << "Harga film berhasil diubah!" << endl;
+}
+
+void editFilm(){
+   fstream file("films.txt", ios::in);
+   string id, judul, genre, harga;
+   int cari, pilih;
+
+   tampilDaftarFilm();
+
+   cout << "ID film yang ingin diubah datanya: ";
+   cin >> cari;
+
+   cout << "Data Film yang ingin diubah:\n";
+   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
+      if(stoi(id) == cari){
+         cout << "ID: " << id << endl;
+         cout << "Judul: " << judul << endl;
+         cout << "Genre: " << genre << endl;
+         cout << "Harga: " << harga << endl;
+         break;
+      }
+   }
+
+   cout << "Pilihan edit:\n";
+   cout << "1. Judul\n";
+   cout << "2. Genre\n";
+   cout << "3. Harga\n";
+   cout << "Pilih data yang ingin diubah (1-3): ";
+   cin >> pilih;
+
+   switch(pilih){
+      case 1:
+         file.close();
+         editJudul(cari);
+         break;
+      case 2:
+         file.close();
+         editGenre(cari);
+         break;
+      case 3:
+         file.close();
+         editHarga(cari);
+         break;
+      default:
+         cout << "Pilihan tidak valid!" << endl;
+         return;
+   }
+}
+
 void menuAdmin() {
    system("cls"); 
    int pilih;
@@ -187,6 +315,9 @@ void menuAdmin() {
                cin >> ulang;
                break;
             case 2:
+               editFilm();
+               cout << "Kembali ke menu admin? (y/n): ";
+               cin >> ulang;
                break;
             case 3:
                break;

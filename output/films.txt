@@ -1,2 +1,18 @@
-1:Maunyasih:apaya:45000
-2:Kendal:Horror:70000
+1:Shang Chi:Superhero:100000
+2:End Game:Action:88000
+3:Infinity War:Action:200000
+4:The Batman:Drama:770000
+5:Spiderman No Way Home:Superhero:1900000
+6:Black Panther:Action:1300000
+7:The Avengers:Superhero:1500000
+8:Iron Man:SciFi:580000
+9:Thor Ragnarok:Comedy:850000
+10:Civil War:Action:1100000
+11:Doctor Strange:Fantasy:670000
+12:Guardians of the Galaxy:SciFi:77000012
+13:Coco Melon:Animation:2500
+15:Dilan:Rusuh:11000
+16:Jackpot !:Action, Comedy:22500
+17:La La Land:Romance:123000
+18:Scream Zionist:Horror banget filmnya:10
+19:Kala Itu Senja:Drama Wkwk:9900

@@ -18,7 +18,19 @@ struct Teater{
    string layout;
 };
 
+// either pake teater atau kursi
+
+struct Kursi{
+   string nomorKursi;
+   bool isBooked;
+};
+
 struct Pengguna{
+   string username;
+   string password;
+};
+
+struct Admins{
    string username;
    string password;
 };
@@ -26,11 +38,12 @@ struct Pengguna{
 struct Pesanan{
    string namaPelanggan;
    string judulFilm;
-   string kursi;
+   string jadwalTayang;
+   string idkursi; 
 };
 
 string toLower(string str){
-   for(int i = 0; i < str.length(); i++){
+   for(size_t i = 0; i < str.length(); i++){
       str[i] = tolower(str[i]);
    }
    return str;
@@ -38,87 +51,211 @@ string toLower(string str){
 
 // Utility
 void ulangi(bool &ulang);
-void cariFilm(string keyword, char tipe);
+void cariFilm(Film film[], int jumlahFilm, string keyword, char tipe);
 
 // Admin
-void MenuAdmin();
-void AdminMenuFilm();
-void AdminMenuTeater();
-void TambahFilm();
-void EditFilm();
-void EditJudul(int cari);
-void EditGenre(int cari);
-void EditHarga(int cari);
-void HapusFilm();
+void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPengguna, Pesanan pesanan[], int *jumlahPesanan, Admins admin[], int *jumlahAdmin, Kursi kursi[], int *jumlahKursi);
+void AdminMenuFilm(Film film[], int *jumlahFilm);
+// void AdminMenuTeater();
+void TambahFilm(Film film[], int *jumlahFilm);
+void EditFilm(Film film[], int *jumlahFilm);
+void EditJudul(Film film[], int *jumlahFilm, int cari);
+void EditGenre(Film film[], int *jumlahFilm, int cari);
+void EditHarga(Film film[], int *jumlahFilm, int cari);
+void HapusFilm(Film film[], int *jumlahFilm);
+void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi);
 
-void LihatDaftarTeater();
-void TambahTeater();
-void EditTeater();
-void EditNamaTeater(int cari);
-void EditLokasi(int cari);
-void EditKapasitas(int cari);
+// void LihatDaftarTeater();
+// void TambahTeater();
+// void EditTeater();
+// void EditNamaTeater(int cari);
+// void EditLokasi(int cari);
+// void EditKapasitas(int cari);
 
 // Customer
 void RegisterCustomer();
-void MenuPengguna();
-void TampilDaftarFilmCustomer();
-void PesanTiket(int idFilm);
+void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int *jumlahPengguna);
+// void TampilDaftarFilmCustomer(Film film[], int jumlahFilm);
+void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pesanan[], int *jumlahPesanan, Kursi kursi[], int *jumlahKursi);
 
 // Film
-void TampilDaftarFilm();
-void MenuCariFilm();
+void TampilDaftarFilm(Film film[], int jumlahFilm);
+void MenuCariFilm(Film film[], int jumlahFilm);
 
-void MenuAdmin() {
+void ulangAdmin(char *ulang){
+   cout << "Apakah Anda ingin kembali ke menu admin? (y/n): ";
+   cin >> *ulang;
+}
+
+void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi){
+   system("cls");
+   cout << "Daftar Kursi:\n";
+   cout << left << setw(15) << "Nomor Kursi" << setw(10) << "Status" << "\n";
+   for(int i = 0; i < *jumlahKursi; i++){
+      cout << left << setw(15) << kursi[i].nomorKursi << setw(10) << (kursi[i].isBooked ? "Booked" : "Available") << "\n";
+   }
+   system("pause");
+   char ulang = 'n';
+   do{
+      system("cls");
+      cout << "=================================\n";
+      cout << "         MENU KURSI             \n";
+      cout << "=================================\n";
+      cout << "1. Tambah Kursi\n";
+      cout << "2. Hapus Kursi\n";
+      cout << "3. Kembali ke Menu Admin\n";
+      cout << "Pilih menu (1-3): ";
+      int pilih;
+      cin >> pilih;
+      switch(pilih){
+         case 1:
+            {
+               ofstream fileKursi("kursi.txt", ios::app);
+               if(!fileKursi.is_open()){
+                  cout << "Gagal membuka file!" << endl;
+                  return;
+               }
+               string nomorKursi;
+               cout << "Berapa kursi yang ingin ditambahkan? : ";
+               int index = *jumlahKursi;
+               int inputBanyak;
+               cin >> inputBanyak;
+               cin.ignore();
+               int nomor = 1;
+               for(int i = index; i < (*jumlahKursi + inputBanyak); i++){
+                  cout << "Masukkan nomor kursi ke-" << nomor++ << ": ";
+                  cin >> kursi[i].nomorKursi;
+                  cin.ignore();
+                  for(int j = 0; j < i; j++){
+                     if(kursi[i].nomorKursi == kursi[j].nomorKursi){
+                        cout << "Nomor kursi sudah ada, silakan masukkan nomor lain." << endl;
+                        cout << "Masukkan nomor kursi ke-" << nomor-1 << ": ";
+                        cin >> kursi[i].nomorKursi;
+                        cin.ignore();
+                        j = -1; // reset loop untuk cek ulang
+                     }
+                  }
+                  kursi[i].isBooked = false;
+                  fileKursi << kursi[i].nomorKursi << ":" << "0" << "\n";
+               }
+               fileKursi.close();
+               *jumlahKursi += inputBanyak;
+               cout << "Kursi berhasil ditambahkan!" << endl;
+            }
+            break;
+         case 2:
+            {
+               string cari;
+               cout << "Masukkan nomor kursi yang ingin dihapus: ";
+               cin >> cari;
+
+               ofstream temp("temp.txt");
+               bool ditemukan = false;
+
+               if (!temp.is_open()) {
+                   cout << "Gagal membuka file!" << endl;
+                   return;
+               }
+
+               for (int i = 0; i < *jumlahKursi; ++i){
+                  if (kursi[i].nomorKursi == cari) {
+                      ditemukan = true;
+                      continue;
+                  }
+                  temp << kursi[i].nomorKursi << ":" << (kursi[i].isBooked ? "1" : "0") << "\n";
+               }
+
+               temp.close();
+
+               if(ditemukan){
+                  remove("kursi.txt");
+                  rename("temp.txt", "kursi.txt");
+                  cout << "Kursi berhasil dihapus!" << endl;
+               } else {
+                  cout << "Kursi dengan nomor " << cari << " tidak ditemukan." << endl;
+                  remove("temp.txt"); 
+               }
+            }
+            break;
+         case 3:
+            ulang = 'n';
+            break;
+         default:
+            cout << "Menu yang anda pilih tidak tersedia!" << endl;
+            break;
+      }
+      cout << "Apakah Anda ingin kembali ke menu kursi? (y/n): ";
+      cin >> ulang;
+   }while(ulang == 'y' || ulang == 'Y');
+}
+
+void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPengguna, Pesanan pesanan[], int *jumlahPesanan, Admins admin[], int *jumlahAdmin, Kursi kursi[], int *jumlahKursi){
    system("cls"); 
    int pilih;
    char ulang;
-   Pengguna inputAdmin; 
+   Admins inputAdmin; 
    cout << "\n=== LOGIN ADMIN ===\n";
-   cout << "Username: "; cin >> inputAdmin.username;
-   cout << "Password: "; cin >> inputAdmin.password;
-   ifstream fileAdmin("admins.txt");
-   
-   Pengguna tempAdmin;
-   bool statusLogin = true;
-   // while (getline(fileAdmin, tempAdmin.username, ':')) {
-   //     getline(fileAdmin, tempAdmin.password); 
-       
-   //     if (tempAdmin.username == inputAdmin.username && tempAdmin.password == inputAdmin.password) {
-   //         statusLogin = true;
-   //         cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
-   //         break; 
-   //     }
-   // }
-   // fileAdmin.close();
+   cout << "Username: "; 
+   cin >> inputAdmin.username;
+   cout << "Password: "; 
+   cin >> inputAdmin.password;
+   // ifstream fileAdmin("admins.txt");
+   // cuma biar ga error pas masuk menu admin, soalnya data adminnya belum ada, nanti tinggal dihapus aja
+   film = film;
+   pesanan = pesanan;
+   *jumlahFilm = *jumlahFilm;
+   *jumlahPesanan = *jumlahPesanan;
+   pengguna = pengguna;
+   *jumlahPengguna = *jumlahPengguna;
+   // Pengguna tempAdmin;
+   bool statusLogin = false;
+   for(int i = 0; i < *jumlahAdmin; i++){
+      if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
    if (statusLogin){
+      int totalTransaksi = 0;
+      int totalPendapatan = 0;
       do{
+         system("cls");
          cout << "===============================\n";
          cout << "         MENU ADMIN            \n";
          cout << "===============================\n";
          cout << "1. Menu Film\n";
-         cout << "2. Menu Teater\n";
+         cout << "2. Menu Kursi\n";
          cout << "3. Lihat Laporan Transaksi\n";
          cout << "4. Logout\n";
          cout << "Pilih menu (1-4): ";
          cin >> pilih;
          switch (pilih){
             case 1:
-               AdminMenuFilm();
-               cout << "Kembali ke menu admin? (y/n): ";
-               cin >> ulang;
+               AdminMenuFilm(film, jumlahFilm);
+               ulangAdmin(&ulang);
                break;
             case 2:
-               AdminMenuTeater();
-               cout << "Kembali ke menu admin? (y/n): ";
-               cin >> ulang;
+               // AdminMenuTeater();
+               MenuKursi(film, *jumlahFilm, kursi, jumlahKursi);
+               ulangAdmin(&ulang);
                break;
             case 3:
-               cout << "Masih dalam pengembangan..." << endl;
-               cout << "Kembali ke menu admin? (y/n): ";
-               cin >> ulang;
+               system("cls");
+               cout << "Laporan Transaksi:\n";
+               cout << left << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
+               for(int i = 0; i < *jumlahPesanan; i++){
+                  cout << left << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
+                  totalTransaksi++;
+                  totalPendapatan += film[i].harga;
+               }
+               cout << "\nTotal Transaksi: " << totalTransaksi << endl;
+               cout << "Total Pendapatan: " << totalPendapatan << endl;
+               ulangAdmin(&ulang);
                break;
             case 4:
-               cout << "Logout berhasil!" << endl;
+               ulang = 'n';
                break;
             default:
                cout << "Menu yang anda pilih tidak tersedia!" << endl;
@@ -130,14 +267,14 @@ void MenuAdmin() {
    }
 }
 
-void AdminMenuFilm(){
+void AdminMenuFilm(Film film[], int *jumlahFilm){
    system("cls");
    int pilih;
    cout << "===============================\n";
    cout << "         MENU FILM             \n";
    cout << "===============================\n";
    cout << "Daftar Film:\n";
-   TampilDaftarFilm();
+   TampilDaftarFilm(film, *jumlahFilm);
    cout << "===============================\n";
    cout << "1. Tambah Film\n";
    cout << "2. Edit Film\n";
@@ -147,13 +284,13 @@ void AdminMenuFilm(){
    cin >> pilih;
    switch (pilih){
       case 1:
-         TambahFilm();
+         TambahFilm(film, jumlahFilm);
          break;
       case 2:
-         EditFilm();
+         EditFilm(film, jumlahFilm);
          break;
       case 3:
-         HapusFilm();
+         HapusFilm(film, jumlahFilm);
          break;
       case 4:
          break;
@@ -163,44 +300,59 @@ void AdminMenuFilm(){
    }
 }
 
-void TampilDaftarFilm(){
+void TampilDaftarFilm(Film film[], int jumlahFilm){
    system("cls");
    cout << "Daftar Film Tersedia:\n";
-   cout << "ID\tJudul\t\tGenre\t\tHarga\n";
-   ifstream fileFilm("films.txt");
-   if(fileFilm.is_open()){
-      string id, judul, genre, harga;
-      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
-         Film film;
-         film.id = stoi(id);
-         film.judul = judul;
-         film.genre = genre;
-         film.harga = stoi(harga);
-         cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
-      }
-      
+   cout << left
+   << setw(5) << "ID"
+   << setw(30) << "Judul"
+   << setw(20) << "Genre"
+   << setw(10) << "Harga" << "\n";
+   string id, judul, genre, harga;
+   for(int i = 0; i < jumlahFilm; i++){
+      cout << left
+      << setw(5) << film[i].id
+      << setw(30) << film[i].judul
+      << setw(20) << film[i].genre
+      << setw(10) << film[i].harga << "\n";
    }
 }
 
-void TambahFilm(){
+void TambahFilm(Film film[], int *jumlahFilm){
    ofstream fileFilm("films.txt", ios::app);
-   Film newFilm;
-   cout << "Masukkan ID Film: ";
-   cin >> newFilm.id;
-   cout << "Masukkan Judul Film: ";
+   if(!fileFilm.is_open()){
+      cout << "Gagal membuka file!" << endl;
+      return;
+   }
+   // cout << "Jumlah film saat ini: " << film[*jumlahFilm-1].id << endl;
+   int index = *jumlahFilm;
+   int inputBanyak;
+   cout << "Input berapa film? : ";
+   cin >> inputBanyak;
    cin.ignore();
-   getline(cin, newFilm.judul);
-   cout << "Masukkan Genre Film: ";
-   getline(cin, newFilm.genre);
-   cout << "Masukkan Harga Tiket: ";
-   cin >> newFilm.harga;
-   fileFilm << newFilm.id << ":" << newFilm.judul << ":" << newFilm.genre << ":" << newFilm.harga << "\n";
+   int nomor = 1;
+   int lastID = film[*jumlahFilm-1].id + 1;
+   for(int i = index; i < (*jumlahFilm + inputBanyak); i++){
+      cout << "-----------------------------" << endl;
+      cout << "No. " << nomor++ << endl;
+      film[i].id = lastID;
+      lastID++;
+      cout << "Masukkan Judul Film: ";
+      getline(cin, film[i].judul);
+      cout << "Masukkan Genre Film: ";
+      getline(cin, film[i].genre);
+      cout << "Masukkan Harga Tiket: ";
+      cin >> film[i].harga;
+      cin.ignore();
+      fileFilm << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
+   }
    fileFilm.close();
+   *jumlahFilm += inputBanyak;
    cout << "Film berhasil ditambahkan!" << endl;
 }
 
-void EditFilm(){
-   fstream file("films.txt", ios::in);
+void EditFilm(Film film[], int *jumlahFilm){
+   // fstream file("films.txt", ios::in);
    string id, judul, genre, harga;
    int cari, pilih;
 
@@ -210,15 +362,16 @@ void EditFilm(){
    cin >> cari;
 
    cout << "Data Film yang ingin diubah:\n";
-   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
-      if(stoi(id) == cari){
-         cout << "ID: " << id << endl;
-         cout << "Judul: " << judul << endl;
-         cout << "Genre: " << genre << endl;
-         cout << "Harga: " << harga << endl;
-         break;
-      }
-   }
+   TampilDaftarFilm(film, *jumlahFilm);
+   // while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
+   //    if(stoi(id) == cari){
+   //       cout << "ID: " << id << endl;
+   //       cout << "Judul: " << judul << endl;
+   //       cout << "Genre: " << genre << endl;
+   //       cout << "Harga: " << harga << endl;
+   //       break;
+   //    }
+   // }
 
    cout << "Pilihan edit:\n";
    cout << "1. Judul\n";
@@ -229,16 +382,16 @@ void EditFilm(){
 
    switch(pilih){
       case 1:
-         file.close();
-         EditJudul(cari);
+         // file.close();
+         EditJudul(film, jumlahFilm, cari);
          break;
       case 2:
-         file.close();
-         EditGenre(cari);
+         // file.close();
+         EditGenre(film, jumlahFilm, cari);
          break;
       case 3:
-         file.close();
-         EditHarga(cari);
+         // file.close();
+         EditHarga(film, jumlahFilm, cari);
          break;
       default:
          cout << "Pilihan tidak valid!" << endl;
@@ -246,88 +399,86 @@ void EditFilm(){
    }
 }
 
-void EditJudul(int cari){
+void EditJudul(Film film[], int *jumlahFilm, int cari){
    string id, judul, genre, harga, ganti;
    cout << "Masukkan judul baru: ";
    cin.ignore();
    getline(cin, ganti);
 
-   ifstream file("films.txt");
    ofstream temp("temp.txt");
 
-   if (!file || !temp) {
+   if (!temp.is_open()) {
        cout << "Gagal membuka file!" << endl;
        return;
    }
-   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
-      if(stoi(id) == cari){
-         temp << id << ":" << ganti << ":" << genre << ":" << harga << "\n";
+   for(int i = 0; i < *jumlahFilm; i++){
+      if(film[i].id == cari){
+         film[i].judul = ganti;
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }else{
-         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }
    }
-   file.close();
    temp.close();
    remove("films.txt");
    rename("temp.txt", "films.txt");
    cout << "Judul film berhasil diubah!" << endl;
 }
 
-void EditGenre(int cari){
+void EditGenre(Film film[], int *jumlahFilm, int cari){
    string id, judul, genre, harga, ganti;
    cout << "Masukkan genre baru: ";
    cin.ignore();
    getline(cin, ganti);
 
-   ifstream file("films.txt");
    ofstream temp("temp.txt");
 
-   if (!file || !temp) {
+   if (!temp.is_open()) {
        cout << "Gagal membuka file!" << endl;
        return;
    }
-   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
-      if(stoi(id) == cari){
-         temp << id << ":" << judul << ":" << ganti << ":" << harga << "\n";
+   for(int i = 0; i < *jumlahFilm; i++){
+      if(film[i].id == cari){
+         film[i].genre = ganti;
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }else{
-         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }
    }
-   file.close();
    temp.close();
    remove("films.txt");
    rename("temp.txt", "films.txt");
-   cout << "Genre film berhasil diubah!" << endl;
+   cout << "Judul film berhasil diubah!" << endl;
 }
 
-void EditHarga(int cari){
-   string id, judul, genre, harga, ganti;
+void EditHarga(Film film[], int *jumlahFilm, int cari){
+   string id, judul, genre, harga;
+   int ganti;
    cout << "Masukkan harga baru: ";
+   cin.ignore();
    cin >> ganti;
 
-   ifstream file("films.txt");
    ofstream temp("temp.txt");
 
-   if (!file || !temp) {
+   if (!temp.is_open()) {
        cout << "Gagal membuka file!" << endl;
        return;
    }
-   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
-      if(stoi(id) == cari){
-         temp << id << ":" << judul << ":" << genre << ":" << ganti << "\n";
+   for(int i = 0; i < *jumlahFilm; i++){
+      if(film[i].id == cari){
+         film[i].harga = ganti;
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }else{
-         temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+         temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
       }
    }
-   file.close();
    temp.close();
    remove("films.txt");
    rename("temp.txt", "films.txt");
    cout << "Harga film berhasil diubah!" << endl;
 }
 
-void HapusFilm(){
-   fstream file("films.txt", ios::in);
+void HapusFilm(Film film[], int *jumlahFilm){
    string id, judul, genre, harga;
    int cari;
 
@@ -339,160 +490,193 @@ void HapusFilm(){
    ofstream temp("temp.txt");
    bool ditemukan = false;
 
-   while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
-      if(stoi(id) == cari){
-         ditemukan = true;
-         continue; 
-      }
-      temp << id << ":" << judul << ":" << genre << ":" << harga << "\n";
+   if (!temp.is_open()) {
+       cout << "Gagal membuka file!" << endl;
+       return;
    }
 
-   file.close();
+   bool found = false;
+
+   int index = 0;
+   for (int i = 0; i < *jumlahFilm; ++i){
+      if (film[i].id == cari) {
+          found = true;
+          continue;
+      }
+      film[index] = film[i];
+
+      index++;
+
+   }
+
+   if (found) {
+       for (int i = 0; i < index; ++i) {
+           temp << film[i].id << ":" << film[i].judul << ":" << film[i].genre << ":" << film[i].harga << "\n";
+       }
+       ditemukan = true;
+   } else {
+       ditemukan = false;
+   }
+
+   // file.close();
    temp.close();
 
    if(ditemukan){
       remove("films.txt");
       rename("temp.txt", "films.txt");
       cout << "Film berhasil dihapus!" << endl;
+      (*jumlahFilm)--;
    } else {
       cout << "Film dengan ID " << cari << " tidak ditemukan." << endl;
       remove("temp.txt"); 
    }
 }
 
-void AdminMenuTeater(){
-   system("cls");
-   int pilih;
-   cout << "===============================\n";
-   cout << "         MENU TEATER           \n";
-   cout << "===============================\n";
-   cout << "1. Lihat Daftar Teater\n";
-   cout << "2. Tambah Teater\n";
-   cout << "3. Edit Teater\n";
-   cout << "4. Hapus Teater\n";
-   cout << "5. Kembali ke Menu Admin\n";
-   cout << "Pilih menu (1-5): ";
-   cin >> pilih;
-   switch (pilih){
-      case 1:
-         LihatDaftarTeater();
-         break;
-      case 2:
-         TambahTeater();
-         break;
-      case 3:
-         EditTeater();
-         break;
-      case 4:
-         break;
-      case 5:
-         break;
-      default:
-         cout << "Menu yang anda pilih tidak tersedia!" << endl;
-         break;
-   }
-}
+// void AdminMenuTeater(){
+//    system("cls");
+//    int pilih;
+//    cout << "===============================\n";
+//    cout << "         MENU TEATER           \n";
+//    cout << "===============================\n";
+//    cout << "1. Lihat Daftar Teater\n";
+//    cout << "2. Tambah Teater\n";
+//    cout << "3. Edit Teater\n";
+//    cout << "4. Hapus Teater\n";
+//    cout << "5. Kembali ke Menu Admin\n";
+//    cout << "Pilih menu (1-5): ";
+//    cin >> pilih;
+//    switch (pilih){
+//       case 1:
+//          LihatDaftarTeater();
+//          break;
+//       case 2:
+//          TambahTeater();
+//          break;
+//       case 3:
+//          EditTeater();
+//          break;
+//       case 4:
+//          break;
+//       case 5:
+//          break;
+//       default:
+//          cout << "Menu yang anda pilih tidak tersedia!" << endl;
+//          break;
+//    }
+// }
 
-void LihatDaftarTeater(){
-   system("cls");
-   cout << "Daftar Teater Tersedia:\n";
-   cout << left << setw(30) << "Nama Teater" << setw(20) << "Lokasi" << setw(10) << "Kapasitas" << setw(10) << "Baris" << setw(10) << "Kolom" << "\n";
-   ifstream fileTeater("teaters.txt");
-   if(fileTeater.is_open()){
-      string namaTeater, lokasi, kapasitas, baris, kolom, layout;
-      cout << string(80, '=') << endl;
-      while(getline(fileTeater, namaTeater, ':') && getline(fileTeater, lokasi, ':') && getline(fileTeater, kapasitas, ':') && getline(fileTeater, baris, ':') && getline(fileTeater, kolom, ':') && getline(fileTeater, layout)){
-         Teater teater;
-         teater.namaTeater = namaTeater;
-         teater.lokasi = lokasi;
-         teater.kapasitas = stoi(kapasitas);
-         teater.baris = stoi(baris);
-         teater.kolom = stoi(kolom);
-         teater.layout = layout;
-         cout << left << setw(30) << teater.namaTeater << setw(20) << teater.lokasi << setw(10) << teater.kapasitas << setw(10) << teater.baris << setw(10) << teater.kolom << endl;
-      }
-      cout << string(80, '=') << endl;
-   }
-}
+// void LihatDaftarTeater(){
+//    system("cls");
+//    cout << "Daftar Teater Tersedia:\n";
+//    cout << left << setw(30) << "Nama Teater" << setw(20) << "Lokasi" << setw(10) << "Kapasitas" << setw(10) << "Baris" << setw(10) << "Kolom" << "\n";
+//    ifstream fileTeater("teaters.txt");
+//    if(fileTeater.is_open()){
+//       string namaTeater, lokasi, kapasitas, baris, kolom, layout;
+//       cout << string(80, '=') << endl;
+//       while(getline(fileTeater, namaTeater, ':') && getline(fileTeater, lokasi, ':') && getline(fileTeater, kapasitas, ':') && getline(fileTeater, baris, ':') && getline(fileTeater, kolom, ':') && getline(fileTeater, layout)){
+//          Teater teater;
+//          teater.namaTeater = namaTeater;
+//          teater.lokasi = lokasi;
+//          teater.kapasitas = stoi(kapasitas);
+//          teater.baris = stoi(baris);
+//          teater.kolom = stoi(kolom);
+//          teater.layout = layout;
+//          cout << left << setw(30) << teater.namaTeater << setw(20) << teater.lokasi << setw(10) << teater.kapasitas << setw(10) << teater.baris << setw(10) << teater.kolom << endl;
+//       }
+//       cout << string(80, '=') << endl;
+//    }
+// }
 
-void TambahTeater(){
-   ofstream fileTeater("teaters.txt", ios::app);
-   Teater newTeater;
+// void TambahTeater(){
+//    ofstream fileTeater("teaters.txt", ios::app);
+//    Teater newTeater;
 
-   cout << "Masukkan Nama Teater: ";
-   cin.ignore();
-   getline(cin, newTeater.namaTeater);
-   cout << "Masukkan Lokasi Teater: ";
-   getline(cin, newTeater.lokasi);
-   cout << "Masukkan Jumlah Baris: ";
-   cin >> newTeater.baris;
-   cout << "Masukkan Jumlah Kolom: ";
-   cin >> newTeater.kolom;
+//    cout << "Masukkan Nama Teater: ";
+//    cin.ignore();
+//    getline(cin, newTeater.namaTeater);
+//    cout << "Masukkan Lokasi Teater: ";
+//    getline(cin, newTeater.lokasi);
+//    cout << "Masukkan Jumlah Baris: ";
+//    cin >> newTeater.baris;
+//    cout << "Masukkan Jumlah Kolom: ";
+//    cin >> newTeater.kolom;
 
-   string layout = "";
-   for (int i = 0; i < newTeater.baris; i++) {
-      char hurufBaris = 'A' + i;
-      for (int j = 1; j <= newTeater.kolom; j++) {
-         layout += hurufBaris + to_string(j);
-         if (j != newTeater.kolom) {
-               layout += ",";
-         }
-      }
-      if (i != newTeater.baris - 1) {
-         layout += "|";
-      }
-   }
-   newTeater.kapasitas = newTeater.baris * newTeater.kolom;
+//    string layout = "";
+//    for (int i = 0; i < newTeater.baris; i++) {
+//       char hurufBaris = 'A' + i;
+//       for (int j = 1; j <= newTeater.kolom; j++) {
+//          layout += hurufBaris + to_string(j);
+//          if (j != newTeater.kolom) {
+//                layout += ",";
+//          }
+//       }
+//       if (i != newTeater.baris - 1) {
+//          layout += "|";
+//       }
+//    }
+//    newTeater.kapasitas = newTeater.baris * newTeater.kolom;
 
-   fileTeater << newTeater.namaTeater << ":" << newTeater.lokasi << ":" << newTeater.kapasitas << ":" << newTeater.baris << ":" << newTeater.kolom << ":" << layout << "\n";
-   fileTeater.close();
-   cout << "\nTeater berhasil ditambahkan!\n";
-}
+//    fileTeater << newTeater.namaTeater << ":" << newTeater.lokasi << ":" << newTeater.kapasitas << ":" << newTeater.baris << ":" << newTeater.kolom << ":" << layout << "\n";
+//    fileTeater.close();
+//    cout << "\nTeater berhasil ditambahkan!\n";
+// }
 
-void EditTeater(){
-   fstream file("teaters.txt", ios::in);
-   string namaTeater, lokasi, kapasitas, baris, kolom, layout;
-   int cari, pilih;
-   cout << "ID teater yang ingin diubah datanya: ";
-   cin >> cari;
+// void EditNamaTeater(int id){
 
-   cout << "Data Teater yang ingin diubah:\n";
-   while(getline(file, namaTeater, ':') && getline(file, lokasi, ':') && getline(file, kapasitas, ':') && getline(file, baris, ':') && getline(file, kolom, ':') && getline(file, layout)){
-      if(stoi(kapasitas) == cari){
-         cout << "Nama Teater: " << namaTeater << endl;
-         cout << "Lokasi: " << lokasi << endl;
-         cout << "Kapasitas: " << kapasitas << endl;
-         cout << "Baris: " << baris << endl;
-         cout << "Kolom: " << kolom << endl;
-         break;
-      }
-   }
+// }
 
-   cout << "Pilihan edit:\n";
-   cout << "1. Nama Teater\n";
-   cout << "2. Lokasi\n";
-   cout << "3. Kapasitas\n";
-   cout << "Pilih data yang ingin diubah (1-3): ";
-   cin >> pilih;
+// void EditLokasi(int id){
 
-   switch(pilih){
-      case 1:
-         file.close();
-         EditNamaTeater(cari);
-         break;
-      case 2:
-         file.close();
-         EditLokasi(cari);
-         break;
-      case 3:
-         file.close();
-         EditKapasitas(cari);
-         break;
-      default:
-         cout << "Pilihan tidak valid!" << endl;
-         return;
-   }
-}
+// }
+
+// void EditKapasitas(int id){
+
+// }
+
+// void EditTeater(){
+//    fstream file("teaters.txt", ios::in);
+//    string namaTeater, lokasi, kapasitas, baris, kolom, layout;
+//    int cari, pilih;
+//    cout << "ID teater yang ingin diubah datanya: ";
+//    cin >> cari;
+
+//    cout << "Data Teater yang ingin diubah:\n";
+//    while(getline(file, namaTeater, ':') && getline(file, lokasi, ':') && getline(file, kapasitas, ':') && getline(file, baris, ':') && getline(file, kolom, ':') && getline(file, layout)){
+//       if(stoi(kapasitas) == cari){
+//          cout << "Nama Teater: " << namaTeater << endl;
+//          cout << "Lokasi: " << lokasi << endl;
+//          cout << "Kapasitas: " << kapasitas << endl;
+//          cout << "Baris: " << baris << endl;
+//          cout << "Kolom: " << kolom << endl;
+//          break;
+//       }
+//    }
+
+//    cout << "Pilihan edit:\n";
+//    cout << "1. Nama Teater\n";
+//    cout << "2. Lokasi\n";
+//    cout << "3. Kapasitas\n";
+//    cout << "Pilih data yang ingin diubah (1-3): ";
+//    cin >> pilih;
+
+//    switch(pilih){
+//       case 1:
+//          file.close();
+//          EditNamaTeater(cari);
+//          break;
+//       case 2:
+//          file.close();
+//          EditLokasi(cari);
+//          break;
+//       case 3:
+//          file.close();
+//          EditKapasitas(cari);
+//          break;
+//       default:
+//          cout << "Pilihan tidak valid!" << endl;
+//          return;
+//    }
+// }
 
 void RegisterCustomer() {
    system("cls");
@@ -506,7 +690,7 @@ void RegisterCustomer() {
    File.close();
 }
 
-void MenuPengguna(){  
+void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPengguna, Pesanan pesanan[], int *jumlahPesanan, Kursi kursi[], int *jumlahKursi){  
    system("cls");
    int pilih;
    Pengguna inputCustomer; 
@@ -517,20 +701,19 @@ void MenuPengguna(){
    cin >> inputCustomer.password;
    ifstream fileCustomer("customers.txt");
 
-   Pengguna tempCust; 
-   bool statusLogin = true;
-   // while (getline(fileCustomer, tempCust.username, ':')){
-   //    getline(fileCustomer, tempCust.password); 
+   bool statusLogin = false;
 
-   //    if (tempCust.username == inputCustomer.username && tempCust.password == inputCustomer.password){
-   //       statusLogin = true;
-   //       cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
-   //       break;
-   //    }
-   // }
-   // fileCustomer.close();
+   for(int i = 0; i < jumlahPengguna; i++){
+      if(pengguna[i].username == inputCustomer.username && pengguna[i].password == inputCustomer.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
+
    if(statusLogin){
-      bool ulang = true;
+      bool ulang = false;
       do{
          system("cls"); 
          cout << "==================================================\n";
@@ -544,59 +727,55 @@ void MenuPengguna(){
          cout << "==================================================\n";
          cout << " Pilih menu (1-5): ";
          cin >> pilih;
+         cin.ignore();
          string konfirmasi;
-         switch (pilih){
+         switch(pilih){
          case 1:
-            TampilDaftarFilmCustomer();
+            TampilDaftarFilm(film, jumlahFilm);
             cout << "Pesan tiket sekarang? (y/n): ";
             cin >> konfirmasi;
             if (konfirmasi == "y" || konfirmasi == "Y") {
-               PesanTiket(0);
+               PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
             }
             break;
          case 2:
-            MenuCariFilm();
+            MenuCariFilm(film, jumlahFilm);
             ulangi(ulang);
             break;
          case 3:
-            PesanTiket(0);
+            PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
             break;
          case 4:
+            cout << "Riwayat Transaksi Anda:\n";
+            cout << left << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
+            for(int i = 0; i < *jumlahPesanan; i++){
+               if(pesanan[i].namaPelanggan == inputCustomer.username){
+                  cout << left << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
+               }
+            }
             break;
          case 5:
-            cout << "Logout berhasil!" << endl;
+             cout << "Logout berhasil!" << endl;
             break;
          default:
             cout << "Menu yang anda pilih tidak tersedia!" << endl;
             break;
          }
-      }while(pilih != 5);
+         cout << "Apakah Anda ingin kembali ke menu pengguna? (y/n): ";
+         cin >> konfirmasi;
+         cin.ignore();
+         if(konfirmasi == "y" || konfirmasi == "Y"){
+            ulang = true;
+         }else{
+            ulang = false;
+         }
+      }while(pilih != 5 && ulang);
       } else {
          cout << "Login gagal! Pastikan username dan password benar." << endl;
       }
 }
 
-void TampilDaftarFilmCustomer(){
-   system("cls");
-   cout << "Daftar Film Tersedia:\n";
-   cout << "No\tJudul\t\tGenre\t\tHarga\n";
-   ifstream fileFilm("films.txt");
-   if(fileFilm.is_open()){
-      string id, judul, genre, harga;
-      int no = 1;
-      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
-         Film film;
-         film.id = no++;
-         film.judul = judul;
-         film.genre = genre;
-         film.harga = stoi(harga);
-         cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
-      }
-      
-   }
-}
-
-void MenuCariFilm(){
+void MenuCariFilm(Film film[], int jumlahFilm){
    int pilih;
    do {
       system("cls");
@@ -606,15 +785,15 @@ void MenuCariFilm(){
       cout << "3. Kembali ke Menu Utama\n";
       cout << "Pilih (1-3): ";
       cin >> pilih;
+      cin.ignore();
       switch(pilih){
          case 1:
             {
                string keyword;
                char tipe = 'j';
                cout << "Masukkan judul film: ";
-               cin.ignore();
                getline(cin, keyword);
-               cariFilm(keyword, tipe);
+               cariFilm(film, jumlahFilm, keyword, tipe);
             }
             break;
          case 2:
@@ -622,9 +801,8 @@ void MenuCariFilm(){
                string keyword;
                char tipe = 'g';
                cout << "Masukkan genre film: ";
-               cin.ignore();
                getline(cin, keyword);
-               cariFilm(keyword, tipe);
+               cariFilm(film, jumlahFilm, keyword, tipe);
             }
             break;
          case 3:
@@ -635,19 +813,235 @@ void MenuCariFilm(){
    } while (pilih != 3);
 }
 
-void PesanTiket(int idFilm){
+string cvJadwal(int jadwal){
+   switch(jadwal){
+      case 1:
+         return "10.00 AM";
+      case 2:
+         return "01.00 PM";
+      case 3:
+         return "04.00 PM";
+      case 4:
+         return "07.00 PM";
+      default:
+         return "Jadwal tidak valid";
+   }
+}
+
+void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pesanan[], int *jumlahPesanan, Kursi kursi[], int *jumlahKursi){
    system("cls");
-   if(idFilm == 0){
-      TampilDaftarFilmCustomer();
-      cout << "Masukkan ID film yang ingin dipesan: ";
-      cin >> idFilm;
+   int idFilm;
+   bool found = false;
+   ifstream fileKursi("kursi.txt");
+   if(!fileKursi.is_open()){
+      cout << "Gagal membuka file!" << endl;
+      return;
+   }
+   ofstream temp("temp.txt");
+   if(!temp.is_open()){
+      cout << "Gagal membuka file!" << endl;
+      return;
+   }
+   ofstream filePesanan("pesanan.txt", ios::app);
+   if(!filePesanan.is_open()){
+      cout << "Gagal membuka file!" << endl;
+      return;
+   }
+   TampilDaftarFilm(film, jumlahFilm);
+   cout << "Masukkan ID film yang ingin dipesan: ";
+   cin >> idFilm;
+   int indexChoosen = -1;
+   for(int i = 0; i < jumlahFilm; i++){
+      if(film[i].id == idFilm){
+         cout << "Film yang dipilih: " << film[i].judul << endl;
+         cout << "Harga tiket: " << film[i].harga << endl;
+         cout << "Pilih jadwal tayang: " << endl;
+         cout << "1. 10:00 AM\n";
+         cout << "2. 1:00 PM\n";
+         cout << "3. 4:00 PM\n";
+         cout << "4. 7:00 PM\n";
+         cout << "Pilih jadwal (1-4): ";
+         int jadwal;
+         cin >> jadwal;
+         cout << "Kursi Tersedia:\n";
+         for(int j = 0; j < *jumlahKursi; j++){
+            if(!kursi[j].isBooked){
+               cout << kursi[j].nomorKursi << " ";
+            }
+         }
+         string nomorKursi;
+         do{
+            cout << "\nMasukkan nomor kursi yang ingin dipesan ('0' untuk membatalkan): ";
+            cin >> nomorKursi;
+            bool valid = false;
+            for(int k = 0; k < *jumlahKursi; k++){
+               if(kursi[k].nomorKursi == nomorKursi && !kursi[k].isBooked){
+                  valid = true;
+                  indexChoosen = k;
+               }
+            }
+            if(valid){
+               break;
+            }else{
+               if(nomorKursi == "0"){
+                  cout << "Pemesanan dibatalkan." << endl;
+                  return;
+               }
+               cout << "Nomor kursi tidak valid atau sudah dipesan. Silakan pilih nomor lain. Ketik '0' untuk membatalkan pemesanan." << endl;
+            }
+         }while(true);
+         pesanan[*jumlahPesanan].namaPelanggan = inputCustomer.username;
+         pesanan[*jumlahPesanan].judulFilm = film[i].judul;
+         pesanan[*jumlahPesanan].jadwalTayang = cvJadwal(jadwal);
+         pesanan[*jumlahPesanan].idkursi = nomorKursi;
+         filePesanan << inputCustomer.username << ":" << film[i].judul << ":" << cvJadwal(jadwal) << ":" << nomorKursi << "\n";
+         (*jumlahPesanan)++;
+         cout << "Tiket berhasil dipesan!" << endl;
+         found = true;
+         break;
+      }else{
+         found = false;
+      }
+   }
+   kursi[indexChoosen].isBooked = true;
+   for(int k = 0; k < *jumlahKursi; k++){
+       temp << kursi[k].nomorKursi << ":" << (kursi[k].isBooked ? "1" : "0") << "\n";
+   }
+   if(!found){
+      cout << "Film dengan ID " << idFilm << " tidak ditemukan." << endl;
+   }
+   filePesanan.close();
+   temp.close();
+   fileKursi.close();
+   remove("kursi.txt");
+   rename("temp.txt", "kursi.txt");
+   cout << "Ingin melakukan pemesanan lagi? (y/n): ";
+   char konfirmasi;
+   cin >> konfirmasi;
+   if(konfirmasi == 'y' || konfirmasi == 'Y'){
+      PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
+   }
+}
+
+void loadData(Film film[], int *jumlahFilm, Teater teater[], int *jumlahTeater, Pengguna pengguna[], int *jumlahPengguna, Pesanan pesanan[], int *jumlahPesanan, Admins admin[], int *jumlahAdmin, Kursi kursi[], int *jumlahKursi){
+   ifstream fileFilm("films.txt");
+   if(!fileFilm.is_open()){
+      ofstream createFile("films.txt");
+      createFile.close();
+      *jumlahFilm = 0;
+      return;
+   }else if(fileFilm.is_open()){
+      string id, judul, genre, harga;
+      *jumlahAdmin = 0;
+      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
+         film[*jumlahFilm].id = stoi(id);
+         film[*jumlahFilm].judul = judul;
+         film[*jumlahFilm].genre = genre;
+         film[*jumlahFilm].harga = stoi(harga);
+         (*jumlahFilm)++;
+      }
+   }
+   ifstream fileTeater("teaters.txt");
+   if(!fileTeater.is_open()){
+      ofstream createFile("teaters.txt");
+      createFile.close();
+      *jumlahTeater = 0;
+      return;
+   }else if(fileTeater.is_open()){
+      string namaTeater, lokasi, kapasitas, baris, kolom, layout;
+      *jumlahAdmin = 0;
+      while(getline(fileTeater, namaTeater, ':') && getline(fileTeater, lokasi, ':') && getline(fileTeater, kapasitas, ':') && getline(fileTeater, baris, ':') && getline(fileTeater, kolom, ':') && getline(fileTeater, layout)){
+         teater[*jumlahTeater].namaTeater = namaTeater;
+         teater[*jumlahTeater].lokasi = lokasi;
+         teater[*jumlahTeater].kapasitas = stoi(kapasitas);
+         teater[*jumlahTeater].baris = stoi(baris);
+         teater[*jumlahTeater].kolom = stoi(kolom);
+         teater[*jumlahTeater].layout = layout;
+         (*jumlahTeater)++;
+      }
+   }
+   ifstream filePengguna("customers.txt");
+   if(!filePengguna.is_open()){
+      ofstream createFile("customers.txt");
+      createFile.close();
+      *jumlahPengguna = 0;
+      return;
+   }else if(filePengguna.is_open()){
+      string username, password;
+      *jumlahAdmin = 0;
+      while(getline(filePengguna, username, ':') && getline(filePengguna, password)){
+         pengguna[*jumlahPengguna].username = username;
+         pengguna[*jumlahPengguna].password = password;
+         (*jumlahPengguna)++;
+      }
+   }
+   ifstream filePesanan("pesanan.txt");
+   if(!filePesanan.is_open()){
+      ofstream createFile("pesanan.txt");
+      createFile.close();
+      *jumlahPesanan = 0;
+      return;
+   }else if(filePesanan.is_open()){
+      string namaPelanggan, judulFilm, jadwalTayang, idkursi;
+      *jumlahAdmin = 0;
+      while(getline(filePesanan, namaPelanggan, ':') && getline(filePesanan, judulFilm, ':') && getline(filePesanan, jadwalTayang, ':') && getline(filePesanan, idkursi)){
+         pesanan[*jumlahPesanan].namaPelanggan = namaPelanggan;
+         pesanan[*jumlahPesanan].judulFilm = judulFilm;
+         pesanan[*jumlahPesanan].jadwalTayang = jadwalTayang;
+         pesanan[*jumlahPesanan].idkursi = idkursi;
+         (*jumlahPesanan)++;
+      }
+   }
+
+   ifstream fileAdmin("admins.txt");
+   if(!fileAdmin.is_open()){
+      ofstream createFile("admins.txt");
+      createFile << "admin:admin" << endl;
+      createFile.close();
+      *jumlahAdmin = 1;
+      return;
+   }else if(fileAdmin.is_open()){
+      string username, password;
+      *jumlahAdmin = 0;
+      while(getline(fileAdmin, username, ':') && getline(fileAdmin, password)){
+         admin[*jumlahAdmin].username = username;
+         admin[*jumlahAdmin].password = password;
+         (*jumlahAdmin)++;
+      }
+   }
+   
+   ifstream fileKursi("kursi.txt");
+   if(!fileKursi.is_open()){
+      ofstream createFile("kursi.txt");
+      createFile.close();
+      return;
+   }else if(fileKursi.is_open()){
+      string nomorKursi, isBooked;
+      while(getline(fileKursi, nomorKursi, ':') && getline(fileKursi, isBooked)){
+         kursi[*jumlahKursi].nomorKursi = nomorKursi;
+         kursi[*jumlahKursi].isBooked = (isBooked == "1") ? true : false;
+         (*jumlahKursi)++;
+      }
    }
 }
 
 int main(){
    int pilih;
    bool ulang = true;
+   Film film[100];
+   int jumlahFilm = 0;
+   Teater teater[50];
+   int jumlahTeater = 0;
+   Pengguna pengguna[100];
+   int jumlahPengguna = 0;
+   Pesanan pesanan[100];
+   int jumlahPesanan = 0;
+   Admins admin[100];
+   int jumlahAdmin = 0;
+   Kursi kursi[500];
+   int jumlahKursi = 0;
    do{
+      loadData(film, &jumlahFilm, teater, &jumlahTeater, pengguna, &jumlahPengguna, pesanan, &jumlahPesanan, admin, &jumlahAdmin, kursi, &jumlahKursi);
       system("cls"); 
       cout << "=======================================\n";
       cout << "     WELCOME TO CINEMA TICKET SYSTEM   \n";
@@ -661,7 +1055,7 @@ int main(){
       cin >> pilih;
       switch(pilih){
          case 1:
-            MenuAdmin();
+            MenuAdmin(film, &jumlahFilm, pengguna, &jumlahPengguna, pesanan, &jumlahPesanan, admin, &jumlahAdmin, kursi, &jumlahKursi);
             ulangi(ulang);
             break;
          case 2:
@@ -669,7 +1063,7 @@ int main(){
             ulangi(ulang);
             break;
          case 3:
-             MenuPengguna();
+             MenuPengguna(film, jumlahFilm, pengguna, jumlahPengguna, pesanan, &jumlahPesanan, kursi, &jumlahKursi);
              ulangi(ulang);
             break;
          case 4:
@@ -695,39 +1089,41 @@ void ulangi(bool &ulang){
    }
 }
 
-void cariFilm(string keyword, char tipe){
+void cariFilm(Film film[], int jumlahFilm, string keyword, char tipe){
    system("cls");
    ifstream fileFilm("films.txt");
    string id, judul, genre, harga;
    cout << "Hasil Pencarian untuk '" << keyword << "':\n";
-   cout << "ID\tJudul\t\tGenre\t\tHarga\n";
+   cout << left
+   << setw(5) << "ID" 
+   << setw(30) << "Judul" 
+   << setw(20) << "Genre" 
+   << setw(10) << "Harga" << "\n";
    bool ditemukan = false;
    if(tipe == 'j'){
-      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
-         Film film;
-         film.id = stoi(id);
-         film.judul = judul;
-         film.genre = genre;
-         film.harga = stoi(harga);
-         string lowerJudul = toLower(film.judul);
+      for(int i = 0; i < jumlahFilm; i++){
+         string lowerJudul = toLower(film[i].judul);
          if(lowerJudul.find(toLower(keyword)) != string::npos){
-            cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
+            cout << left
+            << setw(5) << film[i].id
+            << setw(30) << film[i].judul
+            << setw(20) << film[i].genre
+            << setw(10) << film[i].harga << "\n";
             ditemukan = true;
          }
       }
       if(!ditemukan){
          cout << "Film dengan judul '" << keyword << "' tidak ditemukan." << endl;
       }
-   } else if(tipe == 'g'){
-      while(getline(fileFilm, id, ':') && getline(fileFilm, judul, ':') && getline(fileFilm, genre, ':') && getline(fileFilm, harga)){
-         Film film;
-         film.id = stoi(id);
-         film.judul = judul;
-         film.genre = genre;
-         film.harga = stoi(harga);
-         string lowerGenre = toLower(film.genre);
+   }else if(tipe == 'g'){
+      for(int i = 0; i < jumlahFilm; i++){
+         string lowerGenre = toLower(film[i].genre);
          if(lowerGenre.find(toLower(keyword)) != string::npos){
-            cout << film.id << "\t" << film.judul << "\t" << film.genre << "\t" << film.harga << endl;
+            cout << left
+            << setw(5) << film[i].id
+            << setw(30) << film[i].judul
+            << setw(20) << film[i].genre
+            << setw(10) << film[i].harga << "\n";
             ditemukan = true;
          }
       }

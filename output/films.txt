@@ -15,4 +15,5 @@
 16:Jackpot !:Action, Comedy:22500
 17:La La Land:Romance:123000
 18:Scream 2:Horror:1000
-19:Kala Itu Senja:Drama Wkwk:9900
+20:Incidious 2:Horror:19000
+21:One Of Them Days:Drama, Comedy:99000

@@ -13,3 +13,6 @@ zoe:End Game:04.00 PM:A8
 zoe:End Game:04.00 PM:WER2
 zoe:End Game:04.00 PM:Q1
 zoe:Kala Itu Senja:10.00 AM:QWE2
+zoe:Scream 2:01.00 PM:Q22
+zoe:End Game:04.00 PM:QA1
+zoe:One Of Them Days:07.00 PM:AB1

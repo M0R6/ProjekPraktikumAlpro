@@ -180,15 +180,7 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
    cin >> inputAdmin.username;
    cout << "Password: "; 
    cin >> inputAdmin.password;
-   // ifstream fileAdmin("admins.txt");
-   // cuma biar ga error pas masuk menu admin, soalnya data adminnya belum ada, nanti tinggal dihapus aja
-   film = film;
-   pesanan = pesanan;
-   *jumlahFilm = *jumlahFilm;
-   *jumlahPesanan = *jumlahPesanan;
-   pengguna = pengguna;
-   *jumlahPengguna = *jumlahPengguna;
-   // Pengguna tempAdmin;
+   
    bool statusLogin = false;
    for(int i = 0; i < *jumlahAdmin; i++){
       if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
@@ -198,6 +190,7 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
          break;
       }
    }
+
    if (statusLogin){
       int totalTransaksi = 0;
       int totalPendapatan = 0;
@@ -225,9 +218,9 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
             case 3:
                system("cls");
                cout << "Laporan Transaksi:\n";
-               cout << left << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
+               cout << left << setw(5) << "No" << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
                for(int i = 0; i < *jumlahPesanan; i++){
-                  cout << left << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
+                  cout << left << setw(5) << i+1 << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
                   totalTransaksi++;
                   totalPendapatan += film[i].harga;
                }
@@ -705,10 +698,10 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
             break;
          case 4:
             cout << "Riwayat Transaksi Anda:\n";
-            cout << left << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
+            cout << left << setw(5) << "No" << setw(30) << "Nama Pelanggan" << setw(30) << "Judul Film" << setw(20) << "Jadwal Tayang" << setw(15) << "ID Kursi" << "\n";
             for(int i = 0; i < *jumlahPesanan; i++){
                if(pesanan[i].namaPelanggan == inputCustomer.username){
-                  cout << left << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
+                  cout << left << setw(5) << i+1 << setw(30) << pesanan[i].namaPelanggan << setw(30) << pesanan[i].judulFilm << setw(20) << pesanan[i].jadwalTayang << setw(15) << pesanan[i].idkursi << "\n";
                }
             }
             break;
@@ -808,6 +801,7 @@ void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pes
    }
    cout << "Masukkan ID film yang ingin dipesan: ";
    cin >> idFilm;
+   cin.ignore();
    int indexChoosen = -1;
    for(int i = 0; i < jumlahFilm; i++){
       if(film[i].id == idFilm){
@@ -821,10 +815,30 @@ void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pes
          cout << "Pilih jadwal (1-4): ";
          int jadwal;
          cin >> jadwal;
-         cout << "Kursi Tersedia:\n";
+         cout << "Kursi Tersedia:" << endl;
+         Kursi tempKursi[*jumlahKursi];
+         int jumlahTersedia = 0;
          for(int j = 0; j < *jumlahKursi; j++){
             if(!kursi[j].isBooked){
-               cout << kursi[j].nomorKursi << " ";
+               tempKursi[jumlahTersedia] = kursi[j];
+               jumlahTersedia++;
+            }
+         }
+         for(int j = 0; j < jumlahTersedia - 1; j++){
+            for(int k = 0; k < jumlahTersedia - 1 - j; k++){
+               if(tempKursi[k].nomorKursi > tempKursi[k+1].nomorKursi){
+                  Kursi temp = tempKursi[k];
+                  tempKursi[k] = tempKursi[k+1];
+                  tempKursi[k+1] = temp;
+               }
+            }
+         }
+         int kolom = 0;
+         for(int j = 0; j < jumlahTersedia; j++){
+            cout << "[" << tempKursi[j].nomorKursi << "]\t";
+            kolom++;
+            if(kolom % 5 == 0){
+               cout << endl;
             }
          }
          string nomorKursi;

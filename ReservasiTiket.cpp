@@ -81,6 +81,7 @@ void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pes
 // Film
 void TampilDaftarFilm(Film film[], int jumlahFilm);
 void MenuCariFilm(Film film[], int jumlahFilm);
+void TampilDataFilm(Film film[], int jumlahFilm);
 
 void ulangAdmin(char *ulang){
    cout << "Apakah Anda ingin kembali ke menu admin? (y/n): ";
@@ -274,7 +275,7 @@ void AdminMenuFilm(Film film[], int *jumlahFilm){
    cout << "         MENU FILM             \n";
    cout << "===============================\n";
    cout << "Daftar Film:\n";
-   TampilDaftarFilm(film, *jumlahFilm);
+   TampilDataFilm(film, *jumlahFilm);
    cout << "===============================\n";
    cout << "1. Tambah Film\n";
    cout << "2. Edit Film\n";
@@ -300,8 +301,143 @@ void AdminMenuFilm(Film film[], int *jumlahFilm){
    }
 }
 
-void TampilDaftarFilm(Film film[], int jumlahFilm){
+void TampilDaftarFilm(Film filmAsli[], int jumlahFilm){
    system("cls");
+   int pilih, pilihUrut;
+   Film film[jumlahFilm];
+   for(int i = 0; i < jumlahFilm; i++){
+      film[i] = filmAsli[i];
+   }
+   cout << "Menu Tampil Daftar Film\n";
+   cout << "========================\n";
+   cout << "1. Lihat (Unsorted)\n";
+   cout << "2. Lihat (Sorted by ID)\n";
+   cout << "3. Lihat (Sorted by Judul)\n";
+   cout << "4. Lihat (Sorted by Genre)\n";
+   cout << "5. Lihat (Sorted by Harga)\n";
+   cout << "Pilih menu (1-5): ";
+   cin >> pilih;
+   switch(pilih){
+      case 1:
+         break;
+      case 2:
+         cout << "1. Ascending\n";
+         cout << "2. Descending\n";
+         cout << "Pilih urutan (1-2): ";
+         cin >> pilihUrut;
+         if(pilihUrut == 1){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(film[j].id > film[j+1].id){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }else if(pilihUrut == 2){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(film[j].id < film[j+1].id){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }
+         break;
+      case 3:
+         cout << "1. Ascending\n";
+         cout << "2. Descending\n";
+         cout << "Pilih urutan (1-2): ";
+         cin >> pilihUrut;
+         if(pilihUrut == 1){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(toLower(film[j].judul) > toLower(film[j+1].judul)){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }else if(pilihUrut == 2){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(toLower(film[j].judul) < toLower(film[j+1].judul)){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }
+         break;
+      case 4:
+         cout << "1. Ascending\n";
+         cout << "2. Descending\n";
+         cout << "Pilih urutan (1-2): ";
+         cin >> pilihUrut;
+         if(pilihUrut == 1){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(toLower(film[j].genre) > toLower(film[j+1].genre)){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }else if(pilihUrut == 2){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(toLower(film[j].genre) < toLower(film[j+1].genre)){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }
+         break;
+      case 5:
+         cout << "1. Ascending\n";
+         cout << "2. Descending\n";
+         cout << "Pilih urutan (1-2): ";
+         cin >> pilihUrut;
+         if(pilihUrut == 1){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(film[j].harga > film[j+1].harga){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }else if(pilihUrut == 2){
+            for(int i = 0; i < jumlahFilm-1; i++){
+               for(int j = 0; j < jumlahFilm-i-1; j++){
+                  if(film[j].harga < film[j+1].harga){
+                     swap(film[j], film[j+1]);
+                  }
+               }
+            }
+         }
+         break;
+      default:
+         cout << "Menu yang anda pilih tidak tersedia!" << endl;
+         return;
+   }
+   cout << "Daftar Film Tersedia:\n";
+   cout << left
+   << setw(5) << "ID"
+   << setw(30) << "Judul"
+   << setw(20) << "Genre"
+   << setw(10) << "Harga" << "\n";
+   string id, judul, genre, harga;
+   for(int i = 0; i < jumlahFilm; i++){
+      cout << left
+      << setw(5) << film[i].id
+      << setw(30) << film[i].judul
+      << setw(20) << film[i].genre
+      << setw(10) << film[i].harga << "\n";
+   }
+}
+
+void TampilDataFilm(Film filmData[], int jumlahFilm){
+   system("cls");
+   Film film[jumlahFilm];
+   for(int i = 0; i < jumlahFilm; i++){
+      film[i] = filmData[i];
+   }
    cout << "Daftar Film Tersedia:\n";
    cout << left
    << setw(5) << "ID"
@@ -362,7 +498,7 @@ void EditFilm(Film film[], int *jumlahFilm){
    cin >> cari;
 
    cout << "Data Film yang ingin diubah:\n";
-   TampilDaftarFilm(film, *jumlahFilm);
+   TampilDataFilm(film, *jumlahFilm);
    // while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
    //    if(stoi(id) == cari){
    //       cout << "ID: " << id << endl;
@@ -734,13 +870,13 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
             TampilDaftarFilm(film, jumlahFilm);
             cout << "Pesan tiket sekarang? (y/n): ";
             cin >> konfirmasi;
+            cin.ignore();
             if (konfirmasi == "y" || konfirmasi == "Y") {
                PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
             }
             break;
          case 2:
             MenuCariFilm(film, jumlahFilm);
-            ulangi(ulang);
             break;
          case 3:
             PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
@@ -761,13 +897,15 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
             cout << "Menu yang anda pilih tidak tersedia!" << endl;
             break;
          }
-         cout << "Apakah Anda ingin kembali ke menu pengguna? (y/n): ";
-         cin >> konfirmasi;
-         cin.ignore();
-         if(konfirmasi == "y" || konfirmasi == "Y"){
-            ulang = true;
-         }else{
-            ulang = false;
+         if(pilih != 5){
+            cout << "Apakah Anda ingin kembali ke menu pengguna? (y/n): ";
+            cin >> konfirmasi;
+            cin.ignore();
+            if(konfirmasi == "y" || konfirmasi == "Y"){
+               ulang = true;
+            }else{
+               ulang = false;
+            }
          }
       }while(pilih != 5 && ulang);
       } else {
@@ -847,7 +985,6 @@ void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pes
       cout << "Gagal membuka file!" << endl;
       return;
    }
-   TampilDaftarFilm(film, jumlahFilm);
    cout << "Masukkan ID film yang ingin dipesan: ";
    cin >> idFilm;
    int indexChoosen = -1;
@@ -1040,8 +1177,8 @@ int main(){
    int jumlahAdmin = 0;
    Kursi kursi[500];
    int jumlahKursi = 0;
+   loadData(film, &jumlahFilm, teater, &jumlahTeater, pengguna, &jumlahPengguna, pesanan, &jumlahPesanan, admin, &jumlahAdmin, kursi, &jumlahKursi);
    do{
-      loadData(film, &jumlahFilm, teater, &jumlahTeater, pengguna, &jumlahPengguna, pesanan, &jumlahPesanan, admin, &jumlahAdmin, kursi, &jumlahKursi);
       system("cls"); 
       cout << "=======================================\n";
       cout << "     WELCOME TO CINEMA TICKET SYSTEM   \n";

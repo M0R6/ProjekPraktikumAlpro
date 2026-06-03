@@ -9,3 +9,5 @@ zoe:Black Panther:07.00 PM:A4
 zoe:The Avengers:01.00 PM:A6
 zoe:Scream Zionist:04.00 PM:A6
 zoe:Shang Chi:01.00 PM:A7
+zoe:End Game:04.00 PM:A8
+zoe:End Game:04.00 PM:WER2

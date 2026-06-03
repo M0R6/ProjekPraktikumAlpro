@@ -63,7 +63,7 @@ void EditJudul(Film film[], int *jumlahFilm, int cari);
 void EditGenre(Film film[], int *jumlahFilm, int cari);
 void EditHarga(Film film[], int *jumlahFilm, int cari);
 void HapusFilm(Film film[], int *jumlahFilm);
-void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi);
+void MenuKursi(Kursi kursi[], int *jumlahKursi);
 
 // void LihatDaftarTeater();
 // void TambahTeater();
@@ -88,17 +88,10 @@ void ulangAdmin(char *ulang){
    cin >> *ulang;
 }
 
-void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi){
+void MenuKursi(Kursi kursi[], int *jumlahKursi){
    system("cls");
-   cout << "Daftar Kursi:\n";
-   cout << left << setw(15) << "Nomor Kursi" << setw(10) << "Status" << "\n";
-   for(int i = 0; i < *jumlahKursi; i++){
-      cout << left << setw(15) << kursi[i].nomorKursi << setw(10) << (kursi[i].isBooked ? "Booked" : "Available") << "\n";
-   }
-   system("pause");
    char ulang = 'n';
    do{
-      system("cls");
       cout << "=================================\n";
       cout << "         MENU KURSI             \n";
       cout << "=================================\n";
@@ -145,7 +138,12 @@ void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi){
             }
             break;
          case 2:
-            {
+            {  
+               cout << "Daftar Kursi:\n";
+               cout << left << setw(15) << "Nomor Kursi" << setw(10) << "Status" << "\n";
+               for(int i = 0; i < *jumlahKursi; i++){
+                  cout << left << setw(15) << kursi[i].nomorKursi << setw(10) << (kursi[i].isBooked ? "Booked" : "Available") << "\n";
+               }
                string cari;
                cout << "Masukkan nomor kursi yang ingin dihapus: ";
                cin >> cari;
@@ -185,8 +183,10 @@ void MenuKursi(Film film[], int jumlahFilm, Kursi kursi[], int *jumlahKursi){
             cout << "Menu yang anda pilih tidak tersedia!" << endl;
             break;
       }
-      cout << "Apakah Anda ingin kembali ke menu kursi? (y/n): ";
-      cin >> ulang;
+      if(pilih != 3){
+         cout << "Apakah Anda ingin kembali ke menu kursi? (y/n): ";
+         cin >> ulang;
+      }
    }while(ulang == 'y' || ulang == 'Y');
 }
 
@@ -239,7 +239,7 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
                break;
             case 2:
                // AdminMenuTeater();
-               MenuKursi(film, *jumlahFilm, kursi, jumlahKursi);
+               MenuKursi(kursi, jumlahKursi);
                ulangAdmin(&ulang);
                break;
             case 3:
@@ -498,7 +498,7 @@ void EditFilm(Film film[], int *jumlahFilm){
    cin >> cari;
 
    cout << "Data Film yang ingin diubah:\n";
-   TampilDataFilm(film, *jumlahFilm);
+   // TampilDataFilm(film, *jumlahFilm);
    // while(getline(file, id, ':') && getline(file, judul, ':') && getline(file, genre, ':') && getline(file, harga)){
    //    if(stoi(id) == cari){
    //       cout << "ID: " << id << endl;
@@ -879,6 +879,7 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
             MenuCariFilm(film, jumlahFilm);
             break;
          case 3:
+            TampilDataFilm(film, jumlahFilm);
             PesanTiket(film, jumlahFilm, inputCustomer, pesanan, jumlahPesanan, kursi, jumlahKursi);
             break;
          case 4:
@@ -967,7 +968,6 @@ string cvJadwal(int jadwal){
 }
 
 void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pesanan[], int *jumlahPesanan, Kursi kursi[], int *jumlahKursi){
-   system("cls");
    int idFilm;
    bool found = false;
    ifstream fileKursi("kursi.txt");

@@ -11,3 +11,5 @@ zoe:Scream Zionist:04.00 PM:A6
 zoe:Shang Chi:01.00 PM:A7
 zoe:End Game:04.00 PM:A8
 zoe:End Game:04.00 PM:WER2
+zoe:End Game:04.00 PM:Q1
+zoe:Kala Itu Senja:10.00 AM:QWE2

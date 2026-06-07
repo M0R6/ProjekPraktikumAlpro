@@ -105,15 +105,15 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
    cout << "Username: "; cin >> inputAdmin.username;
    cout << "Password: "; cin >> inputAdmin.password;
    
-   bool statusLogin = true;
-   // for(int i = 0; i < *jumlahAdmin; i++){
-   //    if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
-   //       statusLogin = true;
-   //       cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
-   //       system("pause");
-   //       break;
-   //    }
-   // }
+   bool statusLogin = false;
+   for(int i = 0; i < *jumlahAdmin; i++){
+      if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
 
    if(statusLogin){
       int totalTransaksi = 0, totalPendapatan = 0;
@@ -764,16 +764,16 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
    cin >> inputCustomer.password;
    ifstream fileCustomer("customers.txt");
 
-   bool statusLogin = true;
+   bool statusLogin = false;
 
-   // for(int i = 0; i < jumlahPengguna; i++){
-   //    if(pengguna[i].username == inputCustomer.username && pengguna[i].password == inputCustomer.password){
-   //       statusLogin = true;
-   //       cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
-   //       system("pause");
-   //       break;
-   //    }
-   // }
+   for(int i = 0; i < jumlahPengguna; i++){
+      if(pengguna[i].username == inputCustomer.username && pengguna[i].password == inputCustomer.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
 
    if(statusLogin){
       bool ulang = false;

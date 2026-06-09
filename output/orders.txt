@@ -1,2 +1,6 @@
-s:Shang Chi:01.00 PM:D3
-s:Shang Chi:01.00 PM:D2
+Lebron:Spiderman No Way Home:10.00 AM:C5
+Lebron:Spiderman No Way Home:10.00 AM:C6
+Lebron:Spiderman No Way Home:10.00 AM:C7
+Novis:Spiderman No Way Home:10.00 AM:E3
+Daniel:The Avengers:04.00 PM:C4
+Daniel:The Avengers:04.00 PM:C5

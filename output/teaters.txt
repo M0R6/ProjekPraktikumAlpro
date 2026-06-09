@@ -1,1 +1,10 @@
 CGV:Yogyakarta:35:7:5
+Cinema XXI:Jakarta:150:10:15
+Flix Cinema:Bandung:60:6:10
+Platinum Cineplex:Solo:80:8:10
+CGV:Sleman:48:6:8
+Cinema XXI:Medan:200:10:20
+Cinepolis:Bali:120:10:12
+Kota Cinema:Banjarmasin:70:7:10
+New Star Cineplex:Madiun:54:6:9
+Netflix:Jombor:49:7:7

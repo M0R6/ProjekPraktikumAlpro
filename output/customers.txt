@@ -10,3 +10,4 @@ tom:admin2026
 nancy:coffeeCup
 igor:rocket789
 zoe:sunshine
+Novis:novis123

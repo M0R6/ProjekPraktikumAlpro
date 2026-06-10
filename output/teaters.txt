@@ -1,1 +1,2 @@
 CGV:Yogyakarta:35:7:5
+Cinepolis:Yogyakarta:56:8:7

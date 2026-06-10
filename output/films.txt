@@ -1,7 +1,7 @@
 1:Shang Chi:Superhero:100000
 2:End Game:Action:88000
 3:Infinity War:Action:200000
-4:The Batman:Drama:770000
+4:The Badman:Drama:770000
 5:Spiderman No Way Home:Superhero:1900000
 6:Black Panther:Action:1300000
 7:The Avengers:Superhero:1500000
@@ -11,9 +11,11 @@
 11:Doctor Strange:Fantasy:670000
 12:Guardians of the Galaxy:SciFi:77000012
 13:Coco Melon:Animation:2500
-15:Dilan:Rusuh:11000
+15:Dilan:Drama:11000
 16:Jackpot !:Action, Comedy:22500
 17:La La Land:Romance:123000
 18:Scream 2:Horror:1000
 20:Incidious 2:Horror:19000
 21:One Of Them Days:Drama, Comedy:99000
+22:Jailangkung 5:Horror:14000
+23:Backrooms:Horror:65000

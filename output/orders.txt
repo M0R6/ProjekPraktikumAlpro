@@ -1,2 +1,4 @@
 s:Shang Chi:01.00 PM:D3
 s:Shang Chi:01.00 PM:D2
+haha:Shang Chi:01.00 PM:B1
+haha:Shang Chi:01.00 PM:C2

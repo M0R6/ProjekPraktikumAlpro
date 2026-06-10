@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 s:Shang Chi:01.00 PM:D3
 s:Shang Chi:01.00 PM:D2
 haha:Shang Chi:01.00 PM:B1
 haha:Shang Chi:01.00 PM:C2
+=======
+Lebron:Spiderman No Way Home:10.00 AM:C5
+Lebron:Spiderman No Way Home:10.00 AM:C6
+Lebron:Spiderman No Way Home:10.00 AM:C7
+Novis:Spiderman No Way Home:10.00 AM:E3
+Daniel:The Avengers:04.00 PM:C4
+Daniel:The Avengers:04.00 PM:C5
+>>>>>>> 2df764dac58e37d50c2b65883258f88db1e038c1

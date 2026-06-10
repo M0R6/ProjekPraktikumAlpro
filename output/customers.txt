@@ -12,3 +12,4 @@ igor:rocket789
 zoe:sunshine
 halo:halo
 haha:haha
+Novis:novis123

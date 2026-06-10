@@ -967,60 +967,100 @@ void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pes
    cout << "Keterangan: [ X ] = Sudah Dipesan\n";
    cout << "==================================================\n";
 
-   string pilihKursi;
-   cout << "Masukkan Nomor Kursi yang ingin dipesan (Contoh: A1): ";
-   cin >> pilihKursi;
+   int jumlahKursiDipesan;
+   cout << "Berapa kursi yang ingin dipesan?: ";
+   cin >> jumlahKursiDipesan;
 
-   bool kursiDitemukan = false;
-   int barisTerpilih = -1, kolomTerpilih = -1;
+   if (jumlahKursiDipesan <= 0) {
+      cout << "\n[EROR] Jumlah kursi harus lebih dari 0!\n";
+      system("pause");
+      return;
+   }
 
-   for (int i = 0; i < jadwal[idxJadwal].totalBaris; i++) {
-      for (int j = 0; j < jadwal[idxJadwal].totalKolom; j++) {
-         if (toLower(jadwal[idxJadwal].denahKursi[i][j].nomorKursi) == toLower(pilihKursi)) {
-            kursiDitemukan = true;
-            barisTerpilih = i;
-            kolomTerpilih = j;
+   string kursiDipilih[200];
+   int barisDipilih[200], kolomDipilih[200];
+   int kursiBerhasil = 0;
+
+   while (kursiBerhasil < jumlahKursiDipesan) {
+      string pilihKursi;
+      cout << "Masukkan Nomor Kursi ke-" << (kursiBerhasil + 1) << " (Contoh: A1): ";
+      cin >> pilihKursi;
+
+      bool kursiDitemukan = false;
+      int barisTerpilih = -1, kolomTerpilih = -1;
+
+      for (int i = 0; i < jadwal[idxJadwal].totalBaris; i++) {
+         for (int j = 0; j < jadwal[idxJadwal].totalKolom; j++) {
+            if (toLower(jadwal[idxJadwal].denahKursi[i][j].nomorKursi) == toLower(pilihKursi)) {
+               kursiDitemukan = true;
+               barisTerpilih = i;
+               kolomTerpilih = j;
+               break;
+            }
+         }
+         if(kursiDitemukan) break;
+      }
+
+      if (!kursiDitemukan) {
+         cout << "[EROR] Nomor kursi tidak valid atau di luar kapasitas teater!\n";
+         continue;
+      }
+
+      if (jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].isBooked) {
+         cout << "[EROR] Maaf, kursi " << pilihKursi << " sudah dipesan orang lain!\n";
+         continue;
+      }
+
+      bool duplikat = false;
+      for (int i = 0; i < kursiBerhasil; i++) {
+         if (toLower(kursiDipilih[i]) == toLower(jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].nomorKursi)) {
+            duplikat = true;
             break;
          }
       }
-      if(kursiDitemukan) break;
+
+      if (duplikat) {
+         cout << "[EROR] Kursi tersebut sudah Anda pilih di transaksi ini!\n";
+         continue;
+      }
+
+      kursiDipilih[kursiBerhasil] = jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].nomorKursi;
+      barisDipilih[kursiBerhasil] = barisTerpilih;
+      kolomDipilih[kursiBerhasil] = kolomTerpilih;
+      kursiBerhasil++;
    }
 
-   if (!kursiDitemukan) {
-      cout << "\n[EROR] Nomor kursi tidak valid atau di luar kapasitas teater!\n";
-      system("pause");
-      return;
+   for (int i = 0; i < jumlahKursiDipesan; i++) {
+      jadwal[idxJadwal].denahKursi[barisDipilih[i]][kolomDipilih[i]].isBooked = true;
    }
-
-   if (jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].isBooked) {
-      cout << "\n[EROR] Maaf, kursi " << pilihKursi << " sudah dipesan orang lain!\n";
-      system("pause");
-      return;
-   }
-
-   jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].isBooked = true;
-   string namaKursiResmi = jadwal[idxJadwal].denahKursi[barisTerpilih][kolomTerpilih].nomorKursi;
-
-   int idxPesanan = *jumlahPesanan;
-   pesanan[idxPesanan].namaPelanggan = inputCustomer.username;
-   pesanan[idxPesanan].judulFilm = judulFilm;
-   pesanan[idxPesanan].jadwalTayang = jadwal[idxJadwal].waktuTampil;
-   pesanan[idxPesanan].idkursi = namaKursiResmi;
-   (*jumlahPesanan)++;
 
    simpanSemuaJadwal(jadwal, jumlahJadwal);
 
    ofstream filePesanan("orders.txt", ios::app);
-   filePesanan << pesanan[idxPesanan].namaPelanggan << ":"
-              << pesanan[idxPesanan].judulFilm << ":"
-              << pesanan[idxPesanan].jadwalTayang << ":"
-              << pesanan[idxPesanan].idkursi << "\n";
+   for (int i = 0; i < jumlahKursiDipesan; i++) {
+      int idxPesanan = *jumlahPesanan;
+      pesanan[idxPesanan].namaPelanggan = inputCustomer.username;
+      pesanan[idxPesanan].judulFilm = judulFilm;
+      pesanan[idxPesanan].jadwalTayang = jadwal[idxJadwal].waktuTampil;
+      pesanan[idxPesanan].idkursi = kursiDipilih[i];
+      (*jumlahPesanan)++;
+
+      filePesanan << pesanan[idxPesanan].namaPelanggan << ":"
+                 << pesanan[idxPesanan].judulFilm << ":"
+                 << pesanan[idxPesanan].jadwalTayang << ":"
+                 << pesanan[idxPesanan].idkursi << "\n";
+   }
    filePesanan.close();
 
    cout << "\n==================================================\n";
    cout << "   PEMESANAN TIKET BERHASIL!\n";
-   cout << "   Kursi Anda: " << namaKursiResmi << "\n";
-   cout << "   Silakan lakukan pembayaran di kasir sebesar Rp. " << hargaTiket << "\n";
+   cout << "   Kursi Anda: ";
+   for (int i = 0; i < jumlahKursiDipesan; i++) {
+      cout << kursiDipilih[i];
+      if (i < jumlahKursiDipesan - 1) cout << ", ";
+   }
+   cout << "\n";
+   cout << "   Silakan lakukan pembayaran di kasir sebesar Rp. " << (hargaTiket * jumlahKursiDipesan) << "\n";
    cout << "==================================================\n";
    system("pause");
 }

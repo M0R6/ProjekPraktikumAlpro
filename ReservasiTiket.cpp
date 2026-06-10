@@ -83,7 +83,7 @@ void TambahJadwal(JadwalTayang jadwal[], int *jumlahJadwal, Film film[], int jum
 void HapusJadwal(JadwalTayang jadwal[], int *jumlahJadwal);
 bool isJadwalBentrok(JadwalTayang jadwal[], int jumlahJadwal, string namaTeater, string waktuTampil);
 void simpanSemuaJadwal(JadwalTayang jadwal[], int jumlahJadwal);
-void RegisterCustomer();
+void RegisterCustomer(Pengguna pengguna[], int *jumlahPengguna);
 void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int *jumlahPengguna);
 void PesanTiket(Film film[], int jumlahFilm, Pengguna inputCustomer, Pesanan pesanan[], int *jumlahPesanan, JadwalTayang jadwal[], int jumlahJadwal);
 void BatalPesanTiket(Pesanan pesanan[], int *jumlahPesanan, JadwalTayang jadwal[], int jumlahJadwal, Film film[], int jumlahFilm, Pengguna inputCustomer);
@@ -105,15 +105,15 @@ void MenuAdmin(Film film[], int *jumlahFilm, Pengguna pengguna[], int *jumlahPen
    cout << "Username: "; cin >> inputAdmin.username;
    cout << "Password: "; cin >> inputAdmin.password;
    
-   bool statusLogin = true;
-   // for(int i = 0; i < *jumlahAdmin; i++){
-   //    if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
-   //       statusLogin = true;
-   //       cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
-   //       system("pause");
-   //       break;
-   //    }
-   // }
+   bool statusLogin = false;
+   for(int i = 0; i < *jumlahAdmin; i++){
+      if(admin[i].username == inputAdmin.username && admin[i].password == inputAdmin.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputAdmin.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
 
    if(statusLogin){
       int totalTransaksi = 0, totalPendapatan = 0;
@@ -741,7 +741,7 @@ void HapusFilm(Film film[], int *jumlahFilm){
 // =============== CUSTOMER FUNCTIONS ===============
 // ==================================================
 
-void RegisterCustomer() {
+void RegisterCustomer(Pengguna pengguna[], int *jumlahPengguna){
    system("cls");
    Pengguna newCustomer;
    cout << "\n=== REGISTER CUSTOMER ===\n";
@@ -749,6 +749,8 @@ void RegisterCustomer() {
    cout << "Password: "; cin >> newCustomer.password;
 
    ofstream File("customers.txt", ios::app);
+   pengguna[*jumlahPengguna] = newCustomer;
+   (*jumlahPengguna)++;
    File << newCustomer.username << ":" << newCustomer.password << "\n";
    File.close();
 }
@@ -764,16 +766,16 @@ void MenuPengguna(Film film[], int jumlahFilm, Pengguna pengguna[], int jumlahPe
    cin >> inputCustomer.password;
    ifstream fileCustomer("customers.txt");
 
-   bool statusLogin = true;
+   bool statusLogin = false;
 
-   // for(int i = 0; i < jumlahPengguna; i++){
-   //    if(pengguna[i].username == inputCustomer.username && pengguna[i].password == inputCustomer.password){
-   //       statusLogin = true;
-   //       cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
-   //       system("pause");
-   //       break;
-   //    }
-   // }
+   for(int i = 0; i < jumlahPengguna; i++){
+      if(pengguna[i].username == inputCustomer.username && pengguna[i].password == inputCustomer.password){
+         statusLogin = true;
+         cout << "Login berhasil! Selamat datang, " << inputCustomer.username << "!" << endl;
+         system("pause");
+         break;
+      }
+   }
 
    if(statusLogin){
       bool ulang = false;
@@ -1274,7 +1276,7 @@ int main(){
             ulangi(&ulang);
             break;
          case 2:
-            RegisterCustomer();
+            RegisterCustomer(pengguna, &jumlahPengguna);
             ulangi(&ulang);
             break;
          case 3:
